@@ -8,8 +8,8 @@
 <body>
     <div class="container">
         <h1>Disease Detection</h1>
-        <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
-            <input type="file" name="file" required>
+        <form action="{{ url_for('index') }}" method="post" enctype="multipart/form-data">
+            <input type="file" name="image" required>
             <button type="submit">Upload</button>
         </form>
     </div>
