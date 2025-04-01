@@ -35,23 +35,23 @@ pip install flask requests python-telegram-bot gunicorn
 
 disease-detection/
 
-├── app.py                  # Flask Backend
+├── app.py                  # Flask Backend (file)
 
-├── requirements.txt         # Dependencies
+├── requirements.txt         # Dependencies (file)
 
-├── Procfile                 # Render Deployment Config
+├── Procfile                 # Render Deployment Config (file)
 
-├── templates/
+├── templates/ (folder)
 
-│     ├── index.html          # Upload Page
+│     ├── index.html          # Upload Page (file)
 
-│     ├── result.html         # Results Page
+│     ├── result.html         # Results Page (file)
 
-├── static/
+├── static/ (folder)
 
-│     ├── styles.css          # CSS Styling
+│     ├── styles.css (file)          # CSS Styling
 
-│     ├── uploads/            # Image Upload Folder
+│     ├── uploads/ (folder)            # Image Upload Folder
 
 
 ---
