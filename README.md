@@ -43,15 +43,15 @@ disease-detection/
 
 ├── templates/
 
-│   ├── index.html          # Upload Page
+│     ├── index.html          # Upload Page
 
-│   ├── result.html         # Results Page
+│     ├── result.html         # Results Page
 
 ├── static/
 
-│   ├── styles.css          # CSS Styling
+│     ├── styles.css          # CSS Styling
 
-│   ├── uploads/            # Image Upload Folder
+│     ├── uploads/            # Image Upload Folder
 
 
 ---
