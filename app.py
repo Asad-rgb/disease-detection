@@ -1,52 +1,44 @@
 import os
-import requests
 from flask import Flask, render_template, request
+from kindwise import CropHealthApi
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = "static/uploads"
 
-# 🔹 Your API Key for Kindawise
+# Initialize the CropHealthApi with your API key
 KINDAWISE_API_KEY = "BefPrr4m7Iy3Jlyt8ehz82jfJ6VcmfVoux72YVDcGLwhJGkymT"  # Replace with your actual API key
-
-# 🔹 Telegram Bot Credentials
-TELEGRAM_BOT_TOKEN = "7996633142:AAFZjbjFPb5SocenBGs2W-v-qV_hGNuqrbQ"  # Replace with your Telegram Bot Token
-TELEGRAM_CHAT_ID = "6631656756"      # Replace with your Telegram Chat ID
-
-def send_telegram_alert(disease, confidence, image_url):
-    """ Sends a Telegram message with disease detection results """
-    message = f"🌿 Plant Disease Alert!\n\n🔬 Disease: {disease}\n📊 Confidence: {confidence}%\n🖼 Image: {image_url}"
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    data = {"chat_id": TELEGRAM_CHAT_ID, "text": message, "parse_mode": "Markdown"}
-    requests.post(url, data=data)
-
-def detect_disease(image_path):
-    """ Sends the uploaded image to Kindawise API for disease detection """
-    url = "https://api.kindawise.com/crop.health/v1/detect"
-    headers = {"Authorization": f"Bearer {KINDAWISE_API_KEY}"}
-    files = {"image": open(image_path, "rb")}
-    
-    response = requests.post(url, headers=headers, files=files)
-    result = response.json()
-
-    if "disease" in result:
-        return result["disease"], result["confidence"]
-    return "Unknown", 0
+api = CropHealthApi(api_key=KINDAWISE_API_KEY)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
+        if "image" not in request.files:
+            return "No file part", 400
+        
         image = request.files["image"]
-        if image:
-            image_path = os.path.join(app.config["UPLOAD_FOLDER"], image.filename)
-            image.save(image_path)
+        if image.filename == "":
+            return "No selected file", 400
 
-            # 🔹 Detect Disease using Kindawise API
-            disease, confidence = detect_disease(image_path)
+        # Save the uploaded image
+        image_path = os.path.join(app.config["UPLOAD_FOLDER"], image.filename)
+        image.save(image_path)
 
-            # 🔹 Send Telegram Alert
-            send_telegram_alert(disease, confidence, image_path)
+        # Perform disease detection using Kindwise API
+        identification = api.identify(image_path, details=["description", "treatment"])
 
-            return render_template("result.html", image_url=image_path, disease=disease, confidence=confidence)
+        # Extract disease information from the response
+        if identification.result.disease.suggestions:
+            disease = identification.result.disease.suggestions[0].name
+            confidence = identification.result.disease.suggestions[0].probability * 100
+            description = identification.result.disease.suggestions[0].details.get("description", "No description available.")
+            treatment = identification.result.disease.suggestions[0].details.get("treatment", "No treatment information available.")
+        else:
+            disease = "Unknown"
+            confidence = 0
+            description = "No description available."
+            treatment = "No treatment information available."
+
+        return render_template("result.html", image_url=image_path, disease=disease, confidence=confidence, description=description, treatment=treatment)
 
     return render_template("index.html")
 
