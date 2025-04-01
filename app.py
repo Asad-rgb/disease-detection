@@ -1,52 +1,54 @@
-from flask import Flask, request, render_template
-import requests
 import os
-from werkzeug.utils import secure_filename
-from telegram import Bot
+import requests
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
+app.config["UPLOAD_FOLDER"] = "static/uploads"
 
-# Configurations
-API_KEY = "YOUR_KINDWISE_API_KEY"
-KINDWISE_API_URL = "https://api.kindwise.com/detect"
+# 🔹 Your API Key for Kindawise
+KINDAWISE_API_KEY = "BefPrr4m7Iy3Jlyt8ehz82jfJ6VcmfVoux72YVDcGLwhJGkymT"  # Replace with your actual API key
 
-TELEGRAM_BOT_TOKEN = "7996633142:AAFZjbjFPb5SocenBGs2W-v-qV_hGNuqrbQ"
-TELEGRAM_CHAT_ID = "6631656756"
-bot = Bot(token=TELEGRAM_BOT_TOKEN)
+# 🔹 Telegram Bot Credentials
+TELEGRAM_BOT_TOKEN = "7996633142:AAFZjbjFPb5SocenBGs2W-v-qV_hGNuqrbQ"  # Replace with your Telegram Bot Token
+TELEGRAM_CHAT_ID = "6631656756"      # Replace with your Telegram Chat ID
 
-UPLOAD_FOLDER = "static/uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+def send_telegram_alert(disease, confidence, image_url):
+    """ Sends a Telegram message with disease detection results """
+    message = f"🌿 Plant Disease Alert!\n\n🔬 Disease: {disease}\n📊 Confidence: {confidence}%\n🖼 Image: {image_url}"
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    data = {"chat_id": TELEGRAM_CHAT_ID, "text": message, "parse_mode": "Markdown"}
+    requests.post(url, data=data)
 
-@app.route("/")
-def index():
-    return render_template("index.html")
-
-@app.route("/upload", methods=["POST"])
-def upload():
-    if "file" not in request.files:
-        return "No file uploaded", 400
+def detect_disease(image_path):
+    """ Sends the uploaded image to Kindawise API for disease detection """
+    url = "https://api.kindawise.com/crop.health/v1/detect"
+    headers = {"Authorization": f"Bearer {KINDAWISE_API_KEY}"}
+    files = {"image": open(image_path, "rb")}
     
-    file = request.files["file"]
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    file.save(file_path)
+    response = requests.post(url, headers=headers, files=files)
+    result = response.json()
 
-    with open(file_path, "rb") as f:
-        response = requests.post(KINDWISE_API_URL, files={"file": f}, headers={"Authorization": f"Bearer {API_KEY}"})
+    if "disease" in result:
+        return result["disease"], result["confidence"]
+    return "Unknown", 0
 
-    if response.status_code == 200:
-        result = response.json()
-        disease = result.get("disease", "Unknown")
-        confidence = result.get("confidence", "N/A")
+@app.route("/", methods=["GET", "POST"])
+def index():
+    if request.method == "POST":
+        image = request.files["image"]
+        if image:
+            image_path = os.path.join(app.config["UPLOAD_FOLDER"], image.filename)
+            image.save(image_path)
 
-        # Send Telegram Alert
-        message = f"Disease detected: {disease}\nConfidence: {confidence}"
-        bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+            # 🔹 Detect Disease using Kindawise API
+            disease, confidence = detect_disease(image_path)
 
-        return render_template("result.html", disease=disease, confidence=confidence, image_url=file_path)
-    else:
-        return "Error from Kindwise API", 500
+            # 🔹 Send Telegram Alert
+            send_telegram_alert(disease, confidence, image_path)
+
+            return render_template("result.html", image_url=image_path, disease=disease, confidence=confidence)
+
+    return render_template("index.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
