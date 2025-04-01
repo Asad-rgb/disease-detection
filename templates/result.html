@@ -1,17 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Detection Result</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Disease Detection Result</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Detection Result</h1>
-        <img src="{{ image_url }}" alt="Uploaded Image" width="300">
-        <h2>Disease: {{ disease }}</h2>
-        <p>Confidence: {{ confidence }}</p>
-        <a href="/">Upload Another Image</a>
-    </div>
+    <h1>Disease Detection Result</h1>
+    <img src="{{ image_url }}" alt="Uploaded Image" style="max-width: 500px;">
+    <p><strong>Disease:</strong> {{ disease }}</p>
+    <p><strong>Confidence:</strong> {{ confidence }}%</p>
+    <p><strong>Description:</strong> {{ description }}</p>
+    <p><strong>Treatment:</strong> {{ treatment }}</p>
+    <a href="/">Upload another image</a>
 </body>
 </html>
