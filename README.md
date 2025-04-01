@@ -33,9 +33,9 @@ pip install flask requests python-telegram-bot gunicorn
 ## 📂 Project Structure
 
 
-disease-detection/
+disease-detection/           # Main folder can be created anywhere ex:- in downloads(optional) (folder)
 
-├── app.py                  # Flask Backend (file)
+├── app.py                   # Flask Backend (file)
 
 ├── requirements.txt         # Dependencies (file)
 
@@ -43,9 +43,9 @@ disease-detection/
 
 ├── templates/ (folder)
 
-│     ├── index.html          # Upload Page (file)
+│     ├── index.html         # Upload Page (file)
 
-│     ├── result.html         # Results Page (file)
+│     ├── result.html        # Results Page (file)
 
 ├── static/ (folder)
 
