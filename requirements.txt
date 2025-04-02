@@ -2,3 +2,5 @@ flask
 requests
 python-telegram-bot
 gunicorn
+kindwise-api-client
+python-dotenv
