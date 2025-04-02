@@ -1,20 +1,51 @@
 import os
+import requests
 from flask import Flask, render_template, request
 from kindwise import CropHealthApi
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = "static/uploads"
 
-# Initialize the CropHealthApi with your API key
-KINDAWISE_API_KEY = "BefPrr4m7Iy3Jlyt8ehz82jfJ6VcmfVoux72YVDcGLwhJGkymT"  # Replace with your actual API key
+# Replace with your actual Telegram credentials
+TELEGRAM_BOT_TOKEN = "7996633142:AAFZjbjFPb5SocenBGs2W-v-qV_hGNuqrbQ"
+TELEGRAM_CHAT_ID = "6631656756"
+
+KINDAWISE_API_KEY = "BefPrr4m7Iy3Jlyt8ehz82jfJ6VcmfVoux72YVDcGLwhJGkymT"  # Replace with your API key
 api = CropHealthApi(api_key=KINDAWISE_API_KEY)
+
+def send_telegram_alert(image_path, disease, confidence, description, treatment):
+    """Send a Telegram alert with image and disease details."""
+    
+    message = (
+        f"🚨 Plant Disease Detected! 🚨\n\n"
+        f"🌿 Disease: {disease}\n"
+        f"📊 Confidence: {confidence:.2f}%\n\n"
+        f"📝 Description:\n{description}\n\n"
+        f"💊 Treatment: {treatment}"
+    )
+
+    # First, send text message
+    text_url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    text_data = {"chat_id": TELEGRAM_CHAT_ID, "text": message, "parse_mode": "Markdown"}
+    text_response = requests.post(text_url, data=text_data)
+    
+    print("Text message response:", text_response.json())  # Debugging
+
+    # Then, send the image
+    photo_url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendPhoto"
+    with open(image_path, "rb") as image:
+        photo_data = {"chat_id": TELEGRAM_CHAT_ID}
+        photo_files = {"photo": image}
+        photo_response = requests.post(photo_url, data=photo_data, files=photo_files)
+
+        print("Photo message response:", photo_response.json())  # Debugging
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
         if "image" not in request.files:
             return "No file part", 400
-        
+
         image = request.files["image"]
         if image.filename == "":
             return "No selected file", 400
@@ -37,6 +68,9 @@ def index():
             confidence = 0
             description = "No description available."
             treatment = "No treatment information available."
+
+        # Send Telegram Alert
+        send_telegram_alert(image_path, disease, confidence, description, treatment)
 
         return render_template("result.html", image_url=image_path, disease=disease, confidence=confidence, description=description, treatment=treatment)
 
