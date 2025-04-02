@@ -20,6 +20,15 @@
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
+        .image-box {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .image-box img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
         .disease-box {
             background: #e3f2fd;
             padding: 15px;
@@ -55,6 +64,12 @@
 <body>
     <div class="container">
         <h2>Plant Disease Detection Result</h2>
+
+        <!-- Display Uploaded Image -->
+        <div class="image-box">
+            <img src="{{ image_url }}" alt="Uploaded Plant Image">
+        </div>
+
         <div class="disease-box">
             <p class="disease-title">Detected Disease: {{ disease_name }}</p>
             <p><b>Confidence:</b> {{ confidence }}%</p>
@@ -82,7 +97,8 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 disease: "{{ disease_name }}",
-                confidence: "{{ confidence }}%"
+                confidence: "{{ confidence }}%",
+                image: "{{ image_url }}"
             })
         });
     </script>
