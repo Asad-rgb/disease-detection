@@ -7,58 +7,84 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
+            background-color: #f4f4f9;
+            margin: 0;
             padding: 20px;
+            text-align: center;
         }
         .container {
             max-width: 600px;
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
             margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         .disease-box {
-            background: #fff3cd;
-            border: 1px solid #ffeeba;
+            background: #e3f2fd;
             padding: 15px;
             border-radius: 10px;
-            margin-top: 20px;
+            margin-top: 10px;
         }
-        img {
-            max-width: 100%;
-            border-radius: 10px;
+        .disease-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0277bd;
         }
-        .button {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 15px;
-            background: #28a745;
-            color: white;
+        .treatment-section {
+            text-align: left;
+            margin-top: 15px;
+        }
+        .treatment-category {
+            font-weight: bold;
+            color: #01579b;
+            margin-top: 10px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: #bbdefb;
+            padding: 8px;
             border-radius: 5px;
-            text-decoration: none;
-        }
-        .button:hover {
-            background: #218838;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <h1>Disease Detection Result</h1>
-        <img src="{{ image_url }}" alt="Uploaded Image">
-        
+        <h2>Plant Disease Detection Result</h2>
         <div class="disease-box">
-            <h2>{{ disease }}</h2>
-            <p><strong>Confidence:</strong> {{ confidence }}%</p>
-            <p><strong>Description:</strong> {{ description }}</p>
-            <p><strong>Treatment:</strong> {{ treatment }}</p>
+            <p class="disease-title">Detected Disease: {{ disease_name }}</p>
+            <p><b>Confidence:</b> {{ confidence }}%</p>
         </div>
 
-        <a href="/" class="button">Upload Another Image</a>
+        {% if treatment %}
+        <div class="treatment-section">
+            <h3>Treatment Options</h3>
+            {% for category, methods in treatment.items() %}
+                <p class="treatment-category">{{ category.capitalize() }} Treatment:</p>
+                <ul>
+                    {% for method in methods %}
+                        <li>{{ method }}</li>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
 
+    <!-- Telegram Alert (Automatically sent on detection) -->
+    <script>
+        fetch('/send_telegram_alert', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                disease: "{{ disease_name }}",
+                confidence: "{{ confidence }}%"
+            })
+        });
+    </script>
 </body>
 </html>
