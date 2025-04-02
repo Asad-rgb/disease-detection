@@ -71,9 +71,7 @@
         </div>
 
         <div class="disease-box">
-            <p class="disease-title">
-                </b>Detected Disease:</b> {{"disease_name"}}
-            </p>
+            <p class="disease-title">Detected Disease: {{ disease}}</p>
             <p><b>Confidence:</b> {{ confidence }}%</p>
         </div>
 
@@ -98,7 +96,7 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                disease: "{{ disease_name }}",
+                disease: "{{ disease }}",
                 confidence: "{{ confidence }}%",
                 image: "{{ image_url }}"
             })
