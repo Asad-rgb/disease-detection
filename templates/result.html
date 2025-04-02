@@ -71,7 +71,9 @@
         </div>
 
         <div class="disease-box">
-            <p class="disease-title">Detected Disease: {{ disease_name }}</p>
+            <p class="disease-title">
+                </b>Detected Disease:</b> {{ disease_name if disease_name else "Unknown Disease"}}
+            </p>
             <p><b>Confidence:</b> {{ confidence }}%</p>
         </div>
 
