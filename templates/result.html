@@ -3,104 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Disease Detection Result</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        .image-box {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        .image-box img {
-            max-width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        .disease-box {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 10px;
-        }
-        .disease-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #0277bd;
-        }
-        .treatment-section {
-            text-align: left;
-            margin-top: 15px;
-        }
-        .treatment-category {
-            font-weight: bold;
-            color: #01579b;
-            margin-top: 10px;
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        li {
-            background: #bbdefb;
-            padding: 8px;
-            border-radius: 5px;
-            margin-top: 5px;
-        }
-    </style>
+    <title>Detection Result</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
-        <h2>Plant Disease Detection Result</h2>
+<body class="bg-gray-900 text-white">
 
-        <!-- Display Uploaded Image -->
-        <div class="image-box">
-            <img src="{{ image_url }}" alt="Uploaded Plant Image">
-        </div>
-
-        <div class="disease-box">
-            <p class="disease-title">Detected Disease: {{ disease}}</p>
-            <p><b>Confidence:</b> {{ confidence }}%</p>
-        </div>
-
-        {% if treatment %}
-        <div class="treatment-section">
-            <h3>Treatment Options</h3>
-            {% for category, methods in treatment.items() %}
-                <p class="treatment-category">{{ category.capitalize() }} Treatment:</p>
-                <ul>
-                    {% for method in methods %}
-                        <li>{{ method }}</li>
-                    {% endfor %}
-                </ul>
-            {% endfor %}
-        </div>
-        {% endif %}
+    <!-- Fixed Image Section at the Top -->
+    <div class="fixed top-5 left-5 right-5 border-2 border-cyan-400 rounded-lg">
+        <img src="https://drive.google.com/file/d/1-EpzhFHGmkKwIWs8RhGWJP70weOgQzHz/view" alt="Image" class="w-full rounded-lg">
     </div>
 
-    <!-- Telegram Alert (Automatically sent on detection) -->
+    <!-- Main Content -->
+    <div class="container mx-auto mt-32 p-5">
+        <div class="bg-gray-800 p-5 rounded-lg shadow-lg">
+            
+            <!-- Uploaded Image -->
+            <div class="flex justify-center">
+                <img src="{{ image_url }}" alt="Uploaded Image" class="w-48 h-48 object-cover rounded-lg border-2 border-cyan-400">
+            </div>
+
+            <!-- Detection Result -->
+            <h2 class="text-2xl font-semibold text-cyan-400 mt-5 text-center">Detection Result</h2>
+            <p class="text-lg text-gray-300 text-center mt-2">Disease: <span class="font-bold text-white">{{ disease }}</span></p>
+            <p class="text-lg text-gray-300 text-center">Confidence: <span class="font-bold text-white">{{ confidence }}%</span></p>
+
+            <!-- Description -->
+            <div class="mt-5 p-4 bg-gray-700 rounded-lg">
+                <h3 class="text-lg font-semibold text-cyan-300">Description</h3>
+                <p class="text-gray-300">{{ description }}</p>
+            </div>
+
+            <!-- Treatment Section -->
+            <div class="mt-5 p-4 bg-gray-700 rounded-lg">
+                <h3 class="text-lg font-semibold text-cyan-300">Treatment</h3>
+                
+                {% for category, details in treatment.items() %}
+                    <div class="p-3 rounded-lg bg-gray-800 border border-gray-700 mt-3">
+                        <h4 class="text-md font-semibold text-cyan-400">{{ category }}</h4>
+                        <ul class="mt-1 text-sm text-gray-400 space-y-1">
+                            {% for line in details %}
+                                {% if line.strip() %}
+                                    <li>• {{ line.strip() }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Upload Another Button -->
+            <div class="mt-5 flex justify-center">
+                <a href="/" class="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold py-2 px-4 rounded-lg transition">
+                    Upload Another Image
+                </a>
+            </div>
+
+            <!-- Share Button -->
+            <div class="mt-3 flex justify-center">
+                <button onclick="shareResult()" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition">
+                    Share Result
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        fetch('/send_telegram_alert', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                disease: "{{ disease }}",
-                confidence: "{{ confidence }}%",
-                image: "{{ image_url }}"
-            })
-        });
+        function shareResult() {
+            const text = "Check out my plant disease detection result: Disease - {{ disease }}, Confidence - {{ confidence }}%";
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Plant Disease Detection Result',
+                    text: text,
+                    url: window.location.href
+                }).then(() => {
+                    console.log('Shared successfully!');
+                }).catch((error) => {
+                    console.error('Error sharing:', error);
+                });
+            } else {
+                alert("Sharing not supported on this browser.");
+            }
+        }
     </script>
+
 </body>
 </html>
