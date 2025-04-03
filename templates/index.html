@@ -4,78 +4,110 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plant Disease Detection</title>
-    <style>
-        body {
-            font-family: "Poppins", sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(to right, #6a11cb, #2575fc);
-            color: white;
-            margin: 0;
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-black">
+
+    <div class="group relative w-[420px]">
+        <div class="relative overflow-hidden rounded-2xl bg-gray-900 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-cyan-500/10">
+            
+            <div class="relative p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-white">Upload Image</h3>
+                        <p class="text-sm text-gray-400">Drag & drop your plant image here</p>
+                    </div>
+                    <div class="rounded-lg bg-cyan-500/10 p-2">
+                        <svg class="h-6 w-6 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <form action="/" method="post" enctype="multipart/form-data" class="group/dropzone mt-6">
+                    <div class="relative rounded-xl border-2 border-dashed border-gray-700 bg-gray-800 p-8 transition-colors group-hover/dropzone:border-cyan-500/50">
+                        <input type="file" name="image" id="fileInput" required class="absolute inset-0 z-50 h-full w-full cursor-pointer opacity-0" onchange="previewImage(event)">
+                        
+                        <div class="flex flex-col items-center justify-center space-y-2" id="uploadBox">
+                            <svg class="h-12 w-12 text-gray-400 group-hover/dropzone:text-cyan-400 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <p class="text-sm text-gray-400">Click or drag & drop to upload</p>
+                        </div>
+
+                        <!-- Uploaded Image Preview & Progress -->
+                        <div id="imagePreview" class="hidden flex-col items-center justify-center mt-4">
+                            <img id="preview" class="h-24 w-24 rounded-lg object-cover border border-gray-700" src="" alt="Uploaded Image">
+                            <p id="fileName" class="mt-2 text-white text-sm"></p>
+
+                            <!-- Upload Progress Bar -->
+                            <div class="w-full bg-gray-700 rounded-full h-2.5 mt-2">
+                                <div id="progressBar" class="bg-green-400 h-2.5 rounded-full" style="width: 0%;"></div>
+                            </div>
+                            <p id="uploadPercentage" class="text-sm text-green-400 mt-1">0% Uploaded</p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="mt-6 flex w-full items-center justify-center rounded-lg bg-cyan-500 px-4 py-3 text-white font-semibold transition hover:bg-cyan-600">
+                        Detect Disease
+                        <svg class="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function () {
+                    document.getElementById("preview").src = reader.result;
+                    document.getElementById("fileName").textContent = file.name;
+                    document.getElementById("uploadBox").classList.add("hidden");
+                    document.getElementById("imagePreview").classList.remove("hidden");
+
+                    // Simulate Upload Progress
+                    simulateUpload();
+                };
+                reader.readAsDataURL(file);
+            }
         }
-        .container {
-            max-width: 450px;
-            height: 732;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            color: black;
+
+        function simulateUpload() {
+            let progress = 0;
+            const progressBar = document.getElementById("progressBar");
+            const uploadPercentage = document.getElementById("uploadPercentage");
+
+            const interval = setInterval(() => {
+                if (progress >= 100) {
+                    clearInterval(interval);
+                } else {
+                    progress += 10;
+                    progressBar.style.width = progress + "%";
+                    uploadPercentage.textContent = progress + "% Uploaded";
+                }
+            }, 200);
         }
-        h1 {
-            font-size: 18px;
-            margin-bottom: 15px;
-        }
-        p {
-            font-size: 14px;
-            color: #666;
-        }
-        .upload-box {
-            background: #f4f4f4;
-            padding: 10px;
-            border-radius: 10px;
-            border: 2px dashed #6a11cb;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .upload-box:hover {
-            background: #e0e0e0;
-        }
-        input[type="file"] {
-            display: none;
-        }
-        button {
-            background: #6a11cb;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: 0.3s;
-        }
-        button:hover {
-            background: #4e0f9a;
-        }
-    </style>
+    </script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixed Image Section</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
 
-    <div class="container">
-        <h1>🌿 Plant Disease Detection</h1>
-        <p>Upload an image to detect any plant diseases.</p>
-
-        <form action="/" method="POST" enctype="multipart/form-data">
-            <label class="upload-box">
-                <span>📤 Click to Upload an Image</span>
-                <input type="file" name="image" required onchange="this.form.submit()">
-            </label>
-            <button type="submit">Analyze</button>
-        </form>
+    <div class="fixed top-5 left-5 right-5 border-2 border-cyan-400 rounded-lg">
+        <img src="https://drive.google.com/file/d/1-EpzhFHGmkKwIWs8RhGWJP70weOgQzHz/view" alt="Image" class="w-full rounded-lg">
     </div>
 
 </body>
