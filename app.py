@@ -10,7 +10,7 @@ app.config["UPLOAD_FOLDER"] = "static/uploads"
 TELEGRAM_BOT_TOKEN = "7996633142:AAFZjbjFPb5SocenBGs2W-v-qV_hGNuqrbQ"
 TELEGRAM_CHAT_ID = "6631656756"
 
-KINDAWISE_API_KEY = "BefPrr4m7Iy3Jlyt8ehz82jfJ6VcmfVoux72YVDcGLwhJGkymT"  # Replace with your API key
+KINDAWISE_API_KEY = "cStd84k8CEnEon4V0Jb0QJ6kmxwQUzpVZiyKHvoaZ7jKMEGRg1"  # Replace with your API key
 api = CropHealthApi(api_key=KINDAWISE_API_KEY)
 
 def send_telegram_alert(image_path, disease, confidence, description, treatment):
